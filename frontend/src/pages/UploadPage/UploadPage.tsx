@@ -18,7 +18,7 @@ export default function UploadPage() {
             // Initiate upload process by sending the file name to the server.
             const initFormData = new FormData();
             initFormData.append('fileName', video.name);
-            const initRes = await axios.post<string>('http://localhost:8080/upload/init', initFormData, {
+            const initRes = await axios.post<string>('http://localhost:3000/upload/init', initFormData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -41,7 +41,7 @@ export default function UploadPage() {
                 chunkFormData.append('totalChunks', totalChunkSize.toString());
                 chunkFormData.append('chunkIndex', i.toString());
                 chunkFormData.append('uploadId', uploadId);
-                const uploadPromise = axios.post<string>('http://localhost:8080/upload/chunk', chunkFormData, {
+                const uploadPromise = axios.post<string>('http://localhost:3000/upload/chunk', chunkFormData, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -51,7 +51,7 @@ export default function UploadPage() {
             await Promise.all(uploadPromises);
 
             // finalize the upload
-            const completeRes = await axios.post<string>('http://localhost:8080/upload/complete', {
+            const completeRes = await axios.post<string>('http://localhost:3000/upload/complete', {
                 fileName: video.name,
                 totalChunks: totalChunkSize,
                 uploadId: uploadId,
@@ -69,7 +69,7 @@ export default function UploadPage() {
 
         <div className="bg-red-100 w-full h-full ">
             <form encType="multipart/form-data" className="flex flex-col items-center gap-1">
-                <input type="text" name="username" placeholder="Title" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <input type="text" name="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                 <input type="text" name="title" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <textarea name="description" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
                 <input type="file" name="video" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} />
