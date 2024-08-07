@@ -18,7 +18,7 @@ export default function UploadPage() {
             // Initiate upload process by sending the file name to the server.
             const initFormData = new FormData();
             initFormData.append('fileName', video.name);
-            const initRes = await axios.post<string>('http://localhost:8080/upload/initiate', initFormData, {
+            const initRes = await axios.post<string>('http://localhost:8080/upload/init', initFormData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -41,7 +41,7 @@ export default function UploadPage() {
                 chunkFormData.append('totalChunks', totalChunkSize.toString());
                 chunkFormData.append('chunkIndex', i.toString());
                 chunkFormData.append('uploadId', uploadId);
-                const uploadPromise = axios.post<string>('http://localhost:8080/upload/start', chunkFormData, {
+                const uploadPromise = axios.post<string>('http://localhost:8080/upload/chunk', chunkFormData, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
