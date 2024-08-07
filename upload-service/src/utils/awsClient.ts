@@ -15,7 +15,10 @@ export const getAwsClient = () => {
         credentials: {
             accessKeyId: accessKeyId,
             secretAccessKey: secretAccessKey,
-        }
+        },
+        //for localstack
+        endpoint: "http://localhost:4566"
+
     });
 
     return s3Client;

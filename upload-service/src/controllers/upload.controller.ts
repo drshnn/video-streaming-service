@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
     CreateMultipartUploadCommand,
     UploadPartCommand,
@@ -8,17 +8,20 @@ import {
     ListPartsCommand,
 } from "@aws-sdk/client-s3";
 import { getAwsClient } from "../utils/awsClient";
+import { InternalServerError } from "../errors/app.error";
 
-export const initUpload = async (req: Request, res: Response) => {
+export const initUpload = async (req: Request, res: Response, next: NextFunction) => {
     try {
         console.log('Initialising Upload');
-        const { filename } = req.body;
-        console.log(filename);
+        const { fileName } = req.body;
+        console.log(req.body);
         const bucketName = process.env.AWS_BUCKET_NAME;
+        console.log(bucketName);
+
         const s3Client = getAwsClient();
         const createParams = {
             Bucket: bucketName,
-            Key: filename,
+            Key: fileName,
             ContentType: 'video/mp4'
         };
 
@@ -31,21 +34,21 @@ export const initUpload = async (req: Request, res: Response) => {
         res.status(200).json({ uploadId });
     } catch (err) {
         console.error('Error initializing upload:', err);
-        throw new Error("Upload failed, try again later");
+        next(err);
     }
 }
 
 // Upload chunk
-export const uploadChunk = async (req: Request, res: Response) => {
+export const uploadChunk = async (req: Request, res: Response, next: NextFunction) => {
     try {
         console.log('Uploading Chunk');
-        const { filename, chunkIndex, uploadId } = req.body;
+        const { fileName, chunkIndex, uploadId } = req.body;
         const bucketName = process.env.AWS_BUCKET_NAME;
         const s3Client = getAwsClient();
 
         const partParams = {
             Bucket: bucketName,
-            Key: filename,
+            Key: fileName,
             UploadId: uploadId,
             PartNumber: parseInt(chunkIndex) + 1,
             Body: req.file?.buffer,
@@ -58,14 +61,14 @@ export const uploadChunk = async (req: Request, res: Response) => {
         res.status(200).json({ success: true });
     } catch (err) {
         console.error('Error uploading chunk:', err);
-        res.status(500).send('Chunk could not be uploaded');
+        next(err);
     }
 };
 
-export const completeUpload = async (req: Request, res: Response) => {
+export const completeUpload = async (req: Request, res: Response, next: NextFunction) => {
     try {
         console.log('Completing Upload');
-        const { filename, totalChunks, uploadId, title, description, author } = req.body;
+        const { fileName, totalChunks, uploadId, title, description, author } = req.body;
         console.log(title, description, author);
 
         const uploadedParts = [];
@@ -80,7 +83,7 @@ export const completeUpload = async (req: Request, res: Response) => {
 
         const completeParams = {
             Bucket: bucketName,
-            Key: filename,
+            Key: fileName,
             UploadId: uploadId,
         };
 
@@ -90,7 +93,7 @@ export const completeUpload = async (req: Request, res: Response) => {
         );
 
         if (!data.Parts) {
-            throw new Error("Internal Server Error");
+            throw new InternalServerError("Internal Server Error");
         }
 
         const parts = data.Parts.map(part => ({
@@ -115,6 +118,6 @@ export const completeUpload = async (req: Request, res: Response) => {
         return res.status(200).json({ message: "Uploaded successfully!!!" });
     } catch (err) {
         console.error(err);
-        throw new Error("Error uploading the video file");
+        next(err);
     }
 }
