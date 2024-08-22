@@ -4,8 +4,6 @@ import dotenv from "dotenv";
 import uploadRouter from "./routes/upload.route";
 import errorHandler from "./middlewares/errorHandler.middleware";
 import { NotFoundError } from "./errors/app.error";
-import { getAwsClient } from "./utils/awsClient";
-import { ListBucketsCommand, ListObjectsCommand } from "@aws-sdk/client-s3";
 
 dotenv.config();
 
