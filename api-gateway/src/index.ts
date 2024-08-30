@@ -4,8 +4,10 @@ import errorHandler from "./middlewares/error-handler.middleware";
 import dotenv from 'dotenv';
 import { authRouter } from "./routes/auth.route";
 import { privateRouter } from "./routes/private.route";
+import { connectDB } from "./configs/db.configs";
 
 dotenv.config();
+connectDB();
 const app = express();
 app.use(express.json());
 
@@ -16,7 +18,6 @@ app.use(
   })
 );
 
-//routes
 //routes
 app.use('/api/auth/', authRouter)
 app.use('/api/private', privateRouter)
