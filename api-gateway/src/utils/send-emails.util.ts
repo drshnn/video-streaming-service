@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { EmailOptions } from '../types/email.type';
 
 export const sendEmail = (options: EmailOptions) => {
+
     const transporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE,
         auth: {
@@ -10,12 +11,14 @@ export const sendEmail = (options: EmailOptions) => {
         }
     })
 
+
     const mailOptions = {
         from: process.env.EMAIL_FROM,
         to: options.to,
         subject: options.subject,
         html: options.text
     }
+
     transporter.sendMail(mailOptions, function (err, info) {
         if (err) {
             console.log(err)
@@ -23,6 +26,7 @@ export const sendEmail = (options: EmailOptions) => {
             console.log(info)
         }
     })
+
+    console.log("mail sent");
 }
 
-module.exports = sendEmail
