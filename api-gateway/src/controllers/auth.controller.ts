@@ -7,6 +7,7 @@ import { sendEmail } from '../utils/send-emails.util';
 import { Document } from 'mongoose';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
+
     const { username, email, password } = req.body;
     try {
         const user = await User.create({
@@ -52,7 +53,6 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
             return next(new AppError("Email could not be sent", 404))
         }
         const resetToken = user.getResetPasswordToken()
-        console.log('first')
 
         await user.save();
 
@@ -76,10 +76,12 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
             user.resetPasswordToken = undefined;
             user.resetPasswordExpire = undefined;
             await user.save()
+            console.error(error);
+
             return next(new AppError("email could not be send", 500))
         }
     } catch (error) {
-        console.log('failed')
+        console.error(error)
         next(error);
     }
 }
