@@ -7,7 +7,7 @@ import { IRequest } from '../types/jwt.type';
 // const ErrorResponse = require('../utils/errorResponse')
 
 
-export const protect = async (req: IRequest, res: Response, next: NextFunction) => {
+export const protect = async (req: Request, res: Response, next: NextFunction) => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -30,7 +30,12 @@ export const protect = async (req: IRequest, res: Response, next: NextFunction) 
             return next(new AppError("No user found with this id", 404))
 
         }
-        req.user = user;
+        Object.assign(user, {
+            context: {
+                user: user
+            }
+        })
+        // req.user = user;
         next();
     } catch (error) {
         return next(new AppError("Not authorized to access this route", 401))
